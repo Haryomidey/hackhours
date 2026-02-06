@@ -38,6 +38,6 @@ export const eventSchema = {
 export const aggregateSchema = {
   date: { type: "string", distinct: true },
   totalTimeMs: { type: "number", default: 0 },
-  filesEdited: { type: "array", default: [] },
-  languagesUsed: { type: "array", default: [] },
+  filesEdited: { type: "string", default: "[]" },
+  languagesUsed: { type: "string", default: "[]" },
 };
