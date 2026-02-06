@@ -16,8 +16,8 @@ export type EventDoc = {
 export type AggregateDoc = {
   date: string;
   totalTimeMs: number;
-  filesEdited: string[];
-  languagesUsed: string[];
+  filesEdited: string;
+  languagesUsed: string;
 };
 
 export const sessionSchema = {
