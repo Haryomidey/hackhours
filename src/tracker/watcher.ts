@@ -1,7 +1,7 @@
 import chokidar from "chokidar";
-import { HackHoursConfig } from "../config/config";
-import { ChronoCollections } from "../storage/chrono";
-import { SessionManager } from "./session";
+import { HackHoursConfig } from "../config/config.js";
+import { ChronoCollections } from "../storage/chrono.js";
+import { SessionManager } from "./session.js";
 
 export type WatcherHandle = {
   stop: () => Promise<void>;
