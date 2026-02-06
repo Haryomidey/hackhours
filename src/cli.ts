@@ -15,7 +15,7 @@ import { openChrono } from "./storage/chrono";
 import { buildSummary } from "./analytics/queries";
 import { runWatcher } from "./tracker/watcher";
 import { readState, writeState, clearState } from "./utils/state";
-import { endOfDay, formatDuration, parseDateKey, startOfDay, toDateKey } from "./utils/time";
+import { endOfDay, formatDuration, parseDateKey, startOfDay } from "./utils/time";
 
 const program = new Command();
 
