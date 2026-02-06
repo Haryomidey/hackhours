@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectLanguage } from "../src/utils/language";
+import { detectLanguage } from "../src/utils/language.js";
 
 describe("detectLanguage", () => {
   it("maps file extensions", () => {

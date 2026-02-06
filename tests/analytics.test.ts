@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSummary } from "../src/analytics/queries";
+import { buildSummary } from "../src/analytics/queries.js";
 
 const makeCollections = (sessions: any[], events: any[]) => ({
   sessions: {
