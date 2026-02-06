@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import Table from "cli-table3";
-import asciichart from "asciichart";
+import * as asciichart from "asciichart";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
