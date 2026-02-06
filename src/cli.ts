@@ -10,12 +10,12 @@ import {
   loadConfig,
   promptInitConfig,
   saveConfig,
-} from "./config/config";
-import { openChrono } from "./storage/chrono";
-import { buildSummary } from "./analytics/queries";
-import { runWatcher } from "./tracker/watcher";
-import { readState, writeState, clearState } from "./utils/state";
-import { endOfDay, formatDuration, parseDateKey, startOfDay } from "./utils/time";
+} from "./config/config.js";
+import { openChrono } from "./storage/chrono.js";
+import { buildSummary } from "./analytics/queries.js";
+import { runWatcher } from "./tracker/watcher.js";
+import { readState, writeState, clearState } from "./utils/state.js";
+import { endOfDay, formatDuration, parseDateKey, startOfDay } from "./utils/time.js";
 
 const program = new Command();
 
