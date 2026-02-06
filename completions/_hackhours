@@ -1,0 +1,34 @@
+#compdef hackhours
+
+_hackhours() {
+  local -a commands
+  commands=(
+    "init:Initialize config"
+    "start:Start background tracking"
+    "stop:Stop background tracking"
+    "today:Today's summary"
+    "week:Weekly summary"
+    "month:Monthly summary"
+    "stats:Custom stats"
+    "languages:Language breakdown"
+    "projects:Project breakdown"
+    "files:File breakdown"
+  )
+
+  _arguments -C \
+    "1:command:->command" \
+    "*::arg:->args"
+
+  case $state in
+    command)
+      _describe "command" commands
+      ;;
+    args)
+      _arguments \
+        "--from[Start date (YYYY-MM-DD)]" \
+        "--to[End date (YYYY-MM-DD)]"
+      ;;
+  esac
+}
+
+_hackhours "$@"
