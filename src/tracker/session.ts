@@ -89,8 +89,8 @@ export class SessionManager {
       await this.collections.aggregates.add({
         date: dateKey,
         totalTimeMs: durationMs,
-        filesEdited: [],
-        languagesUsed: [],
+        filesEdited: "[]",
+        languagesUsed: "[]",
       });
     } else {
       await this.collections.aggregates.updateMany(
