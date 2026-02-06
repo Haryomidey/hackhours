@@ -7,7 +7,7 @@ import {
   DEFAULT_DATA_DIR,
   DEFAULT_EXCLUDE,
   DEFAULT_IDLE_MINUTES,
-} from "./defaults";
+} from "./defaults.js";
 
 export type HackHoursConfig = {
   directories: string[];
