@@ -8,6 +8,7 @@ import {
   EventDoc,
   SessionDoc,
 } from "./schema";
+} from "./schema.js";
 
 export type ChronoCollections = {
   sessions: any;
