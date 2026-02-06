@@ -1,10 +1,10 @@
 import crypto from "node:crypto";
 import path from "node:path";
-import { HackHoursConfig } from "../config/config";
-import { ChronoCollections } from "../storage/chrono";
-import { detectLanguage } from "../utils/language";
-import { resolveProjectRoot } from "../utils/project";
-import { minutesToMs, toDateKey } from "../utils/time";
+import { HackHoursConfig } from "../config/config.js";
+import { ChronoCollections } from "../storage/chrono.js";
+import { detectLanguage } from "../utils/language.js";
+import { resolveProjectRoot } from "../utils/project.js";
+import { minutesToMs, toDateKey } from "../utils/time.js";
 
 type ActiveSession = {
   sessionId: string;
