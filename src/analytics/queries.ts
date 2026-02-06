@@ -1,6 +1,6 @@
-import { ChronoCollections } from "../storage/chrono";
-import { getEventsInRange, getSessionsInRange } from "../storage/queries";
-import { minutesToMs, toDateKey } from "../utils/time";
+import { ChronoCollections } from "../storage/chrono.js";
+import { getEventsInRange, getSessionsInRange } from "../storage/queries.js";
+import { minutesToMs, toDateKey } from "../utils/time.js";
 
 export type Summary = {
   totalTimeMs: number;

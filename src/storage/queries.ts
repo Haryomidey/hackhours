@@ -1,4 +1,4 @@
-import { ChronoCollections, EventDoc, SessionDoc } from "./chrono";
+import { ChronoCollections, EventDoc, SessionDoc } from "./chrono.js";
 
 export const getSessionsInRange = async (
   collections: ChronoCollections,
