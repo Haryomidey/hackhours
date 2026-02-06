@@ -37,6 +37,7 @@
     "inquirer": "^9.2.20"
   },
   "devDependencies": {
+    "@types/asciichart": "^1.5.8",
     "@types/node": "^20.11.30",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3",

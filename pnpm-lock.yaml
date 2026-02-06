@@ -30,6 +30,9 @@ importers:
         specifier: ^9.2.20
         version: 9.3.8(@types/node@20.19.32)
     devDependencies:
+      '@types/asciichart':
+        specifier: ^1.5.8
+        version: 1.5.8
       '@types/node':
         specifier: ^20.11.30
         version: 20.19.32
@@ -490,6 +493,9 @@ packages:
 
   '@sinclair/typebox@0.27.10':
     resolution: {integrity: sha512-MTBk/3jGLNB2tVxv6uLlFh1iu64iYOQ2PbdOSK3NW8JZsmlaOh2q6sdtKowBhfw8QFLmYNzTW4/oK4uATIi6ZA==}
+
+  '@types/asciichart@1.5.8':
+    resolution: {integrity: sha512-8yzgCUybv8/yUfj4WeTh7G+V+AxU7AzwsF2CrkTtARKHdrxE/EiByF2efUMj6qdm87tENucNu6pLs22RWU0H7g==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -1582,6 +1588,8 @@ snapshots:
     optional: true
 
   '@sinclair/typebox@0.27.10': {}
+
+  '@types/asciichart@1.5.8': {}
 
   '@types/estree@1.0.8': {}
 
