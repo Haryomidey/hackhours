@@ -67,6 +67,16 @@ const printBreakdown = (title: string, map: Map<string, number>, total: number) 
   console.log(table.toString());
 };
 
+const topEntry = (map: Map<string, number>): [string, number] | null => {
+  let best: [string, number] | null = null;
+  for (const entry of map.entries()) {
+    if (!best || entry[1] > best[1]) {
+      best = entry;
+    }
+  }
+  return best;
+};
+
 const parseRange = (from?: string, to?: string) => {
   if (!from || !to) {
     throw new Error("Both --from and --to are required.");
@@ -132,6 +142,67 @@ program
     } catch {
       clearState();
       console.log(chalk.yellow("HackHours was not running."));
+    }
+  });
+
+program
+  .command("status")
+  .description("Show tracker status and recent activity")
+  .action(async () => {
+    const state = readState();
+    let running = false;
+    if (state) {
+      try {
+        process.kill(state.pid, 0);
+        running = true;
+      } catch {
+        clearState();
+      }
+    }
+
+    const config = loadConfig();
+    const { collections } = await openChrono(config.dataDir);
+    const now = new Date();
+    const todayFrom = startOfDay(now).getTime();
+    const todayTo = endOfDay(now).getTime();
+    const weekFromDate = new Date(now);
+    weekFromDate.setDate(weekFromDate.getDate() - 6);
+    const weekFrom = startOfDay(weekFromDate).getTime();
+    const weekTo = endOfDay(now).getTime();
+
+    const [todaySummary, weekSummary] = await Promise.all([
+      buildSummary(collections, todayFrom, todayTo, config.idleMinutes),
+      buildSummary(collections, weekFrom, weekTo, config.idleMinutes),
+    ]);
+
+    console.log(chalk.bold("\nHackHours Status"));
+    console.log(`${chalk.cyan("Running:")} ${running ? chalk.green("Yes") : chalk.red("No")}`);
+    if (running && state) {
+      const startedAt = new Date(state.startedAt);
+      const uptime = Math.max(0, Date.now() - state.startedAt);
+      console.log(`${chalk.cyan("PID:")} ${state.pid}`);
+      console.log(`${chalk.cyan("Started:")} ${startedAt.toLocaleString()}`);
+      console.log(`${chalk.cyan("Uptime:")} ${formatDuration(uptime)}`);
+    }
+
+    console.log(`\n${chalk.cyan("Today:")} ${formatDuration(todaySummary.totalTimeMs)}`);
+    const todayTopProject = topEntry(todaySummary.projects);
+    if (todayTopProject) {
+      console.log(`${chalk.cyan("Top project (today):")} ${todayTopProject[0]} (${formatDuration(todayTopProject[1])})`);
+    }
+    const todayTopLang = topEntry(todaySummary.languages);
+    if (todayTopLang) {
+      console.log(`${chalk.cyan("Top language (today):")} ${todayTopLang[0]} (${formatDuration(todayTopLang[1])})`);
+    }
+
+    console.log(`\n${chalk.cyan("Last 7 days:")} ${formatDuration(weekSummary.totalTimeMs)}`);
+    const weekTopProject = topEntry(weekSummary.projects);
+    if (weekTopProject) {
+      console.log(`${chalk.cyan("Top project (7 days):")} ${weekTopProject[0]} (${formatDuration(weekTopProject[1])})`);
+    }
+    const weekTopLang = topEntry(weekSummary.languages);
+    if (weekTopLang) {
+      console.log(`${chalk.cyan("Top language (7 days):")} ${weekTopLang[0]} (${formatDuration(weekTopLang[1])})`);
     }
   });
 
