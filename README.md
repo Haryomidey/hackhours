@@ -28,6 +28,7 @@ hackhours init
 ```bash
 hackhours start
 hackhours stop
+hackhours status
 ```
 
 ## Reports
