@@ -15,7 +15,7 @@ import { openChrono } from "./storage/chrono.js";
 import { buildSummary } from "./analytics/queries.js";
 import { runWatcher } from "./tracker/watcher.js";
 import { readState, writeState, clearState } from "./utils/state.js";
-import { endOfDay, formatDuration, parseDateKey, startOfDay, toDateKey } from "./utils/time.js";
+import { endOfDay, formatDuration, parseDateKey, startOfDay } from "./utils/time.js";
 
 const program = new Command();
 
@@ -50,54 +50,8 @@ const legendColors: LegendColor[] = [
   chalk.redBright,
 ];
 
-const printLanguageActivity = (summary: Awaited<ReturnType<typeof buildSummary>>) => {
-  const entries = [...summary.languages.entries()]
-    .filter(([, duration]) => duration > 0)
-    .sort((a, b) => b[1] - a[1]);
-
-  if (entries.length === 0) {
-    console.log("No activity recorded.");
-    return;
-  }
-
-  const maxLanguages = 8;
-  const top = entries.slice(0, maxLanguages);
-  const other = entries.slice(maxLanguages);
-  let otherTotal = 0;
-  for (const [, duration] of other) otherTotal += duration;
-  if (otherTotal > 0) top.push(["Other", otherTotal]);
-
-  const labels = top.map(([lang]) => lang);
-  const values = top.map(([, duration]) => Math.round(duration / 60000));
-  const maxValue = Math.max(1, ...values);
-  const height = 10;
-
-  const columns = labels.length;
-  const grid: string[][] = Array.from({ length: height }, () => Array.from({ length: columns }, () => " "));
-  for (let col = 0; col < columns; col += 1) {
-    const value = values[col];
-    const barHeight = Math.max(1, Math.round((value / maxValue) * height));
-    for (let r = height - 1; r >= height - barHeight; r -= 1) {
-      grid[r][col] = "█";
-    }
-  }
-
-  console.log(chalk.dim("Minutes by language"));
-  for (let r = 0; r < height; r += 1) {
-    const label = `${Math.round(((height - r) / height) * maxValue)}`.padStart(3, " ");
-    console.log(`${chalk.dim(label)} | ${grid[r].join("  ")}`);
-  }
-  console.log(chalk.dim("    +" + "-".repeat(columns * 3 - 1)));
-
-  const labelRow = labels
-    .map((lang) => lang.padEnd(2, " ").slice(0, 2))
-    .join("  ");
-  console.log(chalk.dim(`      ${labelRow}`));
-
-  const legend = labels
-    .map((lang, idx) => `${idx + 1}. ${lang}`)
-    .join("  ");
-  console.log(legend);
+const printLanguageActivity = (_summary: Awaited<ReturnType<typeof buildSummary>>) => {
+  // Chart intentionally removed per request. Keep tables and details only.
 };
 
 const buildHistoryGrid = (summary: Awaited<ReturnType<typeof buildSummary>>, weeks: number) => {
@@ -134,38 +88,12 @@ const buildHistoryGrid = (summary: Awaited<ReturnType<typeof buildSummary>>, wee
   return grid;
 };
 
-const buildMonthHeader = (weeks: number) => {
-  const now = new Date();
-  const end = endOfDay(now);
-  const start = startOfDay(new Date(end));
-  start.setDate(start.getDate() - (weeks * 7 - 1));
-  start.setDate(start.getDate() - start.getDay());
-
-  const labels: string[] = [];
-  let lastMonth = -1;
-  for (let w = 0; w < weeks; w += 1) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + w * 7);
-    const month = d.getMonth();
-    if (month !== lastMonth) {
-      labels.push(d.toLocaleString("en-US", { month: "short" }).padEnd(4, " "));
-      lastMonth = month;
-    } else {
-      labels.push("    ");
-    }
-  }
-  return `    ${labels.join(" ")}`;
+const buildMonthHeader = (_weeks: number) => {
+  return "";
 };
 
-const printHistory = (summary: Awaited<ReturnType<typeof buildSummary>>, weeks: number) => {
-  console.log(chalk.cyan("History"));
-  console.log(chalk.dim(buildMonthHeader(weeks)));
-  const grid = buildHistoryGrid(summary, weeks);
-  const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  for (let row = 0; row < grid.length; row += 1) {
-    console.log(`${labels[row]} ${grid[row].join(" ")}`);
-  }
-  console.log(chalk.dim("     Less  ░  ▒  ▓  █  More"));
+const printHistory = (_summary: Awaited<ReturnType<typeof buildSummary>>, _weeks: number) => {
+  // History removed per request.
 };
 
 const printSummary = (title: string, summary: Awaited<ReturnType<typeof buildSummary>>) => {
@@ -186,8 +114,7 @@ const printSummary = (title: string, summary: Awaited<ReturnType<typeof buildSum
     console.log(langTable.toString());
   }
 
-  console.log(`\n${chalk.cyan("Activity")}`);
-  printLanguageActivity(summary);
+  // Activity chart removed per request.
 };
 
 const printBreakdown = (title: string, map: Map<string, number>, total: number) => {
@@ -400,24 +327,6 @@ program
     const to = endOfDay(now).getTime();
     const summary = await buildSummary(collections, from, to, config.idleMinutes);
     printSummary("HackHours – Last 30 Days", summary);
-  });
-
-program
-  .command("history")
-  .description("Activity heatmap history")
-  .option("--weeks <count>", "Number of weeks (default 12)", "12")
-  .action(async (options: { weeks: string }) => {
-    const weeks = Math.max(1, Number(options.weeks) || 12);
-    const config = loadConfig();
-    const { collections } = await openChrono(config.dataDir);
-    const now = new Date();
-    const fromDate = new Date(now);
-    fromDate.setDate(fromDate.getDate() - (weeks * 7 - 1));
-    const from = startOfDay(fromDate).getTime();
-    const to = endOfDay(now).getTime();
-    const summary = await buildSummary(collections, from, to, config.idleMinutes);
-    console.log(chalk.bold(`\nHackHours History (${weeks} weeks)`));
-    printHistory(summary, weeks);
   });
 
 program
