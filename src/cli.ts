@@ -25,16 +25,17 @@ const formatBar = (value: number, total: number, size = 16) => {
   return `${"█".repeat(filled)}${" ".repeat(size - filled)}`;
 };
 
-const chartColors = [
-  asciichart.blue,
-  asciichart.green,
-  asciichart.red,
-  asciichart.cyan,
-  asciichart.magenta,
-  asciichart.yellow,
-  asciichart.lightblue,
-  asciichart.lightgreen,
-  asciichart.lightred,
+type ChartColor = (value: string) => string;
+const chartColors: ChartColor[] = [
+  asciichart.blue as ChartColor,
+  asciichart.green as ChartColor,
+  asciichart.red as ChartColor,
+  asciichart.cyan as ChartColor,
+  asciichart.magenta as ChartColor,
+  asciichart.yellow as ChartColor,
+  asciichart.lightblue as ChartColor,
+  asciichart.lightgreen as ChartColor,
+  asciichart.lightred as ChartColor,
 ];
 
 const printLanguageActivity = (summary: Awaited<ReturnType<typeof buildSummary>>) => {
