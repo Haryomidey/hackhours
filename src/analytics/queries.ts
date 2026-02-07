@@ -47,15 +47,6 @@ export const buildSummary = async (
     activityByDay: new Map(),
   };
 
-  for (const session of sessions) {
-    const sessionEnd = session.endTimestamp ?? now;
-    const overlapStart = Math.max(session.startTimestamp, from);
-    const overlapEnd = Math.min(sessionEnd, to);
-    if (overlapEnd > overlapStart) {
-      summary.totalTimeMs += overlapEnd - overlapStart;
-    }
-  }
-
   for (const [sessionId, list] of eventsBySession.entries()) {
     const session = sessionsById.get(sessionId);
     const sessionEnd = session?.endTimestamp ?? now;
@@ -71,6 +62,7 @@ export const buildSummary = async (
       );
       if (duration <= 0) continue;
 
+      summary.totalTimeMs += duration;
       addToMap(summary.languages, current.language, duration);
       addToMap(summary.projects, current.project, duration);
       addToMap(summary.filesEdited, current.filePath, duration);
