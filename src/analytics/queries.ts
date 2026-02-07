@@ -8,6 +8,7 @@ export type Summary = {
   languages: Map<string, number>;
   projects: Map<string, number>;
   activityByHour: number[];
+  activityByHourByLanguage: Map<string, number[]>;
   activityByDay: Map<string, number>;
 };
 
@@ -44,6 +45,7 @@ export const buildSummary = async (
     languages: new Map(),
     projects: new Map(),
     activityByHour: Array.from({ length: 24 }, () => 0),
+    activityByHourByLanguage: new Map(),
     activityByDay: new Map(),
   };
 
@@ -70,6 +72,13 @@ export const buildSummary = async (
       const eventDate = new Date(current.timestamp);
       const hour = eventDate.getHours();
       summary.activityByHour[hour] += duration;
+      if (!summary.activityByHourByLanguage.has(current.language)) {
+        summary.activityByHourByLanguage.set(
+          current.language,
+          Array.from({ length: 24 }, () => 0),
+        );
+      }
+      summary.activityByHourByLanguage.get(current.language)![hour] += duration;
       addToMap(summary.activityByDay, toDateKey(eventDate), duration);
     }
   }

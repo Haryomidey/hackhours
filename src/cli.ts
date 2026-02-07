@@ -25,6 +25,85 @@ const formatBar = (value: number, total: number, size = 16) => {
   return `${"█".repeat(filled)}${" ".repeat(size - filled)}`;
 };
 
+const chartColors = [
+  asciichart.blue,
+  asciichart.green,
+  asciichart.red,
+  asciichart.cyan,
+  asciichart.magenta,
+  asciichart.yellow,
+  asciichart.lightblue,
+  asciichart.lightgreen,
+  asciichart.lightred,
+];
+
+const printLanguageActivity = (summary: Awaited<ReturnType<typeof buildSummary>>) => {
+  const entries = [...summary.activityByHourByLanguage.entries()]
+    .filter(([, series]) => series.some((v) => v > 0))
+    .sort((a, b) => (summary.languages.get(b[0]) ?? 0) - (summary.languages.get(a[0]) ?? 0));
+
+  if (entries.length === 0) {
+    console.log("No activity recorded.");
+    return;
+  }
+
+  const series = entries.map(([, hours]) => hours.map((ms) => Math.round(ms / 60000)));
+  const colors = entries.map((_, idx) => chartColors[idx % chartColors.length]);
+  console.log(asciichart.plot(series, { height: 8, colors }));
+
+  const legend = entries
+    .map(([lang], idx) => {
+      const color = colors[idx];
+      const swatch = color ? color("■") : "■";
+      return `${swatch} ${lang}`;
+    })
+    .join("  ");
+  console.log(legend);
+};
+
+const buildHistoryGrid = (summary: Awaited<ReturnType<typeof buildSummary>>, weeks: number) => {
+  const levels = [" ", "░", "▒", "▓", "█"];
+  const now = new Date();
+  const end = endOfDay(now);
+  const start = startOfDay(new Date(end));
+  start.setDate(start.getDate() - (weeks * 7 - 1));
+  start.setDate(start.getDate() - start.getDay());
+
+  const dayCount = weeks * 7;
+  const days: Date[] = [];
+  for (let i = 0; i < dayCount; i += 1) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    days.push(d);
+  }
+
+  const values = days.map((d) => summary.activityByDay.get(toDateKey(d)) ?? 0);
+  const max = Math.max(0, ...values);
+
+  const grid: string[][] = Array.from({ length: 7 }, () => Array.from({ length: weeks }, () => " "));
+  for (let i = 0; i < dayCount; i += 1) {
+    const week = Math.floor(i / 7);
+    const day = i % 7;
+    const value = values[i];
+    let level = 0;
+    if (value > 0 && max > 0) {
+      level = Math.max(1, Math.round((value / max) * (levels.length - 1)));
+    }
+    grid[day][week] = levels[level];
+  }
+
+  return grid;
+};
+
+const printHistory = (summary: Awaited<ReturnType<typeof buildSummary>>, weeks: number) => {
+  console.log(chalk.cyan("History"));
+  const grid = buildHistoryGrid(summary, weeks);
+  const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  for (let row = 0; row < grid.length; row += 1) {
+    console.log(`${labels[row]} ${grid[row].join(" ")}`);
+  }
+};
+
 const printSummary = (title: string, summary: Awaited<ReturnType<typeof buildSummary>>) => {
   const total = summary.totalTimeMs;
   console.log(chalk.bold(`\n${title}`));
@@ -44,12 +123,7 @@ const printSummary = (title: string, summary: Awaited<ReturnType<typeof buildSum
   }
 
   console.log(`\n${chalk.cyan("Activity")}`);
-  const series = summary.activityByHour.map((ms) => Math.round(ms / 60000));
-  if (series.some((v) => v > 0)) {
-    console.log(asciichart.plot(series, { height: 8 }));
-  } else {
-    console.log("No activity recorded.");
-  }
+  printLanguageActivity(summary);
 };
 
 const printBreakdown = (title: string, map: Map<string, number>, total: number) => {
