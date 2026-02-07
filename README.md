@@ -39,6 +39,8 @@ hackhours month
 hackhours stats --from 2026-02-01 --to 2026-02-28
 hackhours languages --from 2026-02-01 --to 2026-02-28
 hackhours projects --from 2026-02-01 --to 2026-02-28
+hackhours history
+hackhours history --weeks 24
 ```
 
 ## Config

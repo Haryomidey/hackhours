@@ -15,7 +15,7 @@ import { openChrono } from "./storage/chrono.js";
 import { buildSummary } from "./analytics/queries.js";
 import { runWatcher } from "./tracker/watcher.js";
 import { readState, writeState, clearState } from "./utils/state.js";
-import { endOfDay, formatDuration, parseDateKey, startOfDay } from "./utils/time.js";
+import { endOfDay, formatDuration, parseDateKey, startOfDay, toDateKey } from "./utils/time.js";
 
 const program = new Command();
 
@@ -336,6 +336,24 @@ program
     const to = endOfDay(now).getTime();
     const summary = await buildSummary(collections, from, to, config.idleMinutes);
     printSummary("HackHours – Last 30 Days", summary);
+  });
+
+program
+  .command("history")
+  .description("Activity heatmap history")
+  .option("--weeks <count>", "Number of weeks (default 12)", "12")
+  .action(async (options: { weeks: string }) => {
+    const weeks = Math.max(1, Number(options.weeks) || 12);
+    const config = loadConfig();
+    const { collections } = await openChrono(config.dataDir);
+    const now = new Date();
+    const fromDate = new Date(now);
+    fromDate.setDate(fromDate.getDate() - (weeks * 7 - 1));
+    const from = startOfDay(fromDate).getTime();
+    const to = endOfDay(now).getTime();
+    const summary = await buildSummary(collections, from, to, config.idleMinutes);
+    console.log(chalk.bold(`\nHackHours History (${weeks} weeks)`));
+    printHistory(summary, weeks);
   });
 
 program
