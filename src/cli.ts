@@ -25,17 +25,29 @@ const formatBar = (value: number, total: number, size = 16) => {
   return `${"█".repeat(filled)}${" ".repeat(size - filled)}`;
 };
 
-type ChartColor = (value: string) => string;
-const chartColors: ChartColor[] = [
-  asciichart.blue as ChartColor,
-  asciichart.green as ChartColor,
-  asciichart.red as ChartColor,
-  asciichart.cyan as ChartColor,
-  asciichart.magenta as ChartColor,
-  asciichart.yellow as ChartColor,
-  asciichart.lightblue as ChartColor,
-  asciichart.lightgreen as ChartColor,
-  asciichart.lightred as ChartColor,
+const chartColors: asciichart.Color[] = [
+  asciichart.blue,
+  asciichart.green,
+  asciichart.red,
+  asciichart.cyan,
+  asciichart.magenta,
+  asciichart.yellow,
+  asciichart.lightblue,
+  asciichart.lightgreen,
+  asciichart.lightred,
+];
+
+type LegendColor = (value: string) => string;
+const legendColors: LegendColor[] = [
+  chalk.blue,
+  chalk.green,
+  chalk.red,
+  chalk.cyan,
+  chalk.magenta,
+  chalk.yellow,
+  chalk.blueBright,
+  chalk.greenBright,
+  chalk.redBright,
 ];
 
 const printLanguageActivity = (summary: Awaited<ReturnType<typeof buildSummary>>) => {
@@ -54,8 +66,8 @@ const printLanguageActivity = (summary: Awaited<ReturnType<typeof buildSummary>>
 
   const legend = entries
     .map(([lang], idx) => {
-      const color = colors[idx];
-      const swatch = color ? color("■") : "■";
+      const colorize = legendColors[idx % legendColors.length];
+      const swatch = colorize ? colorize("■") : "■";
       return `${swatch} ${lang}`;
     })
     .join("  ");
