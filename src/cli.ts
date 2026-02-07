@@ -60,17 +60,87 @@ const printLanguageActivity = (summary: Awaited<ReturnType<typeof buildSummary>>
     return;
   }
 
-  console.log(chalk.dim("Hours (local time)"));
-  const series = entries.map(([, hours]) => hours.map((ms) => Math.round(ms / 60000)));
-  const colors = entries.map((_, idx) => chartColors[idx % chartColors.length]);
-  console.log(asciichart.plot(series, { height: 8, colors, padding: "       " }));
-  console.log(chalk.dim("      00    06    12    18    24"));
+  const maxLanguages = 4;
+  const top = entries.slice(0, maxLanguages);
+  const other = entries.slice(maxLanguages);
 
-  const legend = entries
-    .map(([lang], idx) => {
-      const colorize = legendColors[idx % legendColors.length];
-      const swatch = colorize ? colorize("■") : "■";
-      return `${swatch} ${lang}`;
+  const seriesByLang = new Map<string, number[]>();
+  for (const [lang, series] of top) {
+    seriesByLang.set(lang, series.map((ms) => Math.round(ms / 60000)));
+  }
+  if (other.length > 0) {
+    const otherSeries = Array.from({ length: 24 }, () => 0);
+    for (const [, series] of other) {
+      for (let i = 0; i < 24; i += 1) {
+        otherSeries[i] += Math.round(series[i] / 60000);
+      }
+    }
+    seriesByLang.set("Other", otherSeries);
+  }
+
+  const languages = [...seriesByLang.keys()];
+  const symbols = ["█", "▓", "▒", "░", "■"];
+  const height = 10;
+
+  const totalsByHour = Array.from({ length: 24 }, (_, hour) => {
+    let sum = 0;
+    for (const series of seriesByLang.values()) {
+      sum += series[hour] ?? 0;
+    }
+    return sum;
+  });
+  const maxTotal = Math.max(0, ...totalsByHour);
+
+  const grid: string[][] = Array.from({ length: height }, () => Array.from({ length: 24 }, () => " "));
+  for (let hour = 0; hour < 24; hour += 1) {
+    const total = totalsByHour[hour];
+    if (total <= 0 || maxTotal <= 0) continue;
+
+    const stackHeights = languages.map((lang) => {
+      const series = seriesByLang.get(lang)!;
+      const value = series[hour] ?? 0;
+      if (value <= 0) return 0;
+      return Math.max(1, Math.round((value / maxTotal) * height));
+    });
+
+    let used = stackHeights.reduce((a, b) => a + b, 0);
+    while (used > height) {
+      let idx = stackHeights.findIndex((v) => v === Math.max(...stackHeights));
+      if (idx === -1) break;
+      if (stackHeights[idx] > 1) {
+        stackHeights[idx] -= 1;
+        used -= 1;
+      } else {
+        idx = stackHeights.findIndex((v) => v > 1);
+        if (idx === -1) break;
+        stackHeights[idx] -= 1;
+        used -= 1;
+      }
+    }
+
+    let row = height - 1;
+    for (let i = 0; i < languages.length; i += 1) {
+      const segment = stackHeights[i];
+      const symbol = symbols[i % symbols.length];
+      for (let j = 0; j < segment && row >= 0; j += 1) {
+        grid[row][hour] = symbol;
+        row -= 1;
+      }
+    }
+  }
+
+  console.log(chalk.dim("Hours (local time)"));
+  for (let r = 0; r < height; r += 1) {
+    const label = `${Math.round(((height - r) / height) * maxTotal)}`.padStart(3, " ");
+    console.log(`${chalk.dim(label)} | ${grid[r].join(" ")}`);
+  }
+  console.log(chalk.dim("    +---------------------------------------------------------------"));
+  console.log(chalk.dim("      00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23"));
+
+  const legend = languages
+    .map((lang, idx) => {
+      const symbol = symbols[idx % symbols.length];
+      return `${symbol} ${lang}`;
     })
     .join("  ");
   console.log(legend);
