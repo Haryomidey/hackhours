@@ -2,7 +2,6 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import Table from "cli-table3";
-import * as asciichart from "asciichart";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
@@ -25,76 +24,7 @@ const formatBar = (value: number, total: number, size = 16) => {
   return `${"█".repeat(filled)}${" ".repeat(size - filled)}`;
 };
 
-const chartColors: asciichart.Color[] = [
-  asciichart.blue,
-  asciichart.green,
-  asciichart.red,
-  asciichart.cyan,
-  asciichart.magenta,
-  asciichart.yellow,
-  asciichart.lightblue,
-  asciichart.lightgreen,
-  asciichart.lightred,
-];
-
-type LegendColor = (value: string) => string;
-const legendColors: LegendColor[] = [
-  chalk.blue,
-  chalk.green,
-  chalk.red,
-  chalk.cyan,
-  chalk.magenta,
-  chalk.yellow,
-  chalk.blueBright,
-  chalk.greenBright,
-  chalk.redBright,
-];
-
-const printLanguageActivity = (_summary: Awaited<ReturnType<typeof buildSummary>>) => {
-  // Chart intentionally removed per request. Keep tables and details only.
-};
-
-const buildHistoryGrid = (summary: Awaited<ReturnType<typeof buildSummary>>, weeks: number) => {
-  const levels = [" ", "░", "▒", "▓", "█"];
-  const now = new Date();
-  const end = endOfDay(now);
-  const start = startOfDay(new Date(end));
-  start.setDate(start.getDate() - (weeks * 7 - 1));
-  start.setDate(start.getDate() - start.getDay());
-
-  const dayCount = weeks * 7;
-  const days: Date[] = [];
-  for (let i = 0; i < dayCount; i += 1) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    days.push(d);
-  }
-
-  const values = days.map((d) => summary.activityByDay.get(toDateKey(d)) ?? 0);
-  const max = Math.max(0, ...values);
-
-  const grid: string[][] = Array.from({ length: 7 }, () => Array.from({ length: weeks }, () => " "));
-  for (let i = 0; i < dayCount; i += 1) {
-    const week = Math.floor(i / 7);
-    const day = i % 7;
-    const value = values[i];
-    let level = 0;
-    if (value > 0 && max > 0) {
-      level = Math.max(1, Math.round((value / max) * (levels.length - 1)));
-    }
-    grid[day][week] = levels[level];
-  }
-
-  return grid;
-};
-
-const buildMonthHeader = (_weeks: number) => {
-  return "";
-};
-
-const printHistory = (_summary: Awaited<ReturnType<typeof buildSummary>>, _weeks: number) => {
-  // History removed per request.
-};
+// Charts and history output removed per request.
 
 const printSummary = (title: string, summary: Awaited<ReturnType<typeof buildSummary>>) => {
   const total = summary.totalTimeMs;
