@@ -60,9 +60,11 @@ const printLanguageActivity = (summary: Awaited<ReturnType<typeof buildSummary>>
     return;
   }
 
+  console.log(chalk.dim("Hours (local time)"));
   const series = entries.map(([, hours]) => hours.map((ms) => Math.round(ms / 60000)));
   const colors = entries.map((_, idx) => chartColors[idx % chartColors.length]);
-  console.log(asciichart.plot(series, { height: 8, colors }));
+  console.log(asciichart.plot(series, { height: 8, colors, padding: "       " }));
+  console.log(chalk.dim("      00    06    12    18    24"));
 
   const legend = entries
     .map(([lang], idx) => {
@@ -108,13 +110,38 @@ const buildHistoryGrid = (summary: Awaited<ReturnType<typeof buildSummary>>, wee
   return grid;
 };
 
+const buildMonthHeader = (weeks: number) => {
+  const now = new Date();
+  const end = endOfDay(now);
+  const start = startOfDay(new Date(end));
+  start.setDate(start.getDate() - (weeks * 7 - 1));
+  start.setDate(start.getDate() - start.getDay());
+
+  const labels: string[] = [];
+  let lastMonth = -1;
+  for (let w = 0; w < weeks; w += 1) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + w * 7);
+    const month = d.getMonth();
+    if (month !== lastMonth) {
+      labels.push(d.toLocaleString("en-US", { month: "short" }).padEnd(4, " "));
+      lastMonth = month;
+    } else {
+      labels.push("    ");
+    }
+  }
+  return `    ${labels.join(" ")}`;
+};
+
 const printHistory = (summary: Awaited<ReturnType<typeof buildSummary>>, weeks: number) => {
   console.log(chalk.cyan("History"));
+  console.log(chalk.dim(buildMonthHeader(weeks)));
   const grid = buildHistoryGrid(summary, weeks);
   const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   for (let row = 0; row < grid.length; row += 1) {
     console.log(`${labels[row]} ${grid[row].join(" ")}`);
   }
+  console.log(chalk.dim("     Less  ░  ▒  ▓  █  More"));
 };
 
 const printSummary = (title: string, summary: Awaited<ReturnType<typeof buildSummary>>) => {
