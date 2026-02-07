@@ -1,6 +1,6 @@
 {
   "name": "hackhours",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Offline local-first coding activity tracker",
   "type": "module",
   "bin": {
